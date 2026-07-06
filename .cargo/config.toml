@@ -1,0 +1,17 @@
+# Cortex-M7 (i.MX8M Plus real-time core).
+[build]
+target = "thumbv7em-none-eabihf"
+
+[target.thumbv7em-none-eabihf]
+rustflags = ["-C", "link-arg=-Tlink.x"]
+# When you have a probe wired up, a runner such as:
+#   runner = "probe-rs run --chip <mimx8mp-m7-chip>"
+# lets `cargo run` flash/attach directly.
+
+# DBC table capacities for the `heapless` (no-alloc) dbc-rs backend. Must cover
+# the M7 dictionary (5 messages, <=6 signals each, 2 nodes) and be powers of two.
+[env]
+DBC_MAX_MESSAGES = "16"
+DBC_MAX_SIGNALS_PER_MESSAGE = "8"
+DBC_MAX_NODES = "4"
+DBC_MAX_EXTENDED_MULTIPLEXING = "8"
