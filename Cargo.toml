@@ -17,6 +17,15 @@ cortex-m = { version = "0.7.7", features = ["inline-asm", "critical-section-sing
 cortex-m-rt = "0.7.5"
 panic-halt = "1.0.0"
 
+# Async runtime. The thread-mode executor is chip-agnostic (it only needs a
+# Cortex-M), so it runs on the i.MX8MP M7 with no vendor HAL.
+embassy-executor = { version = "0.10.0", features = ["platform-cortex-m", "executor-thread"] }
+embassy-time = { version = "0.5.1", features = ["tick-hz-1_000"] }
+# `embassy-time` needs a global time driver; there is no i.MX8MP-M7 HAL to
+# supply one, so we register a SysTick-backed driver (see `src/time.rs`).
+embassy-time-driver = "0.2"
+systick-timer = { version = "0.2.3", features = ["embassy-time-driver"] }
+
 # The shared M7 CAN contract — same message IDs/scaling/codec the Linux
 # vehicle-service uses. `heapless` keeps the reactive path allocation-free
 # (DBC table capacities are set in .cargo/config.toml).

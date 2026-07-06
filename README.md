@@ -20,6 +20,15 @@ Linux owns a **second, non-safety bus** independently (already handled by
 `vehicle-service`'s SocketCAN path). There is **no telltale/lamp output** on the
 M7 by design — it is a real-time CAN gateway and supervisor, not a display.
 
+## Runtime
+
+Built on **Embassy** — the chip-agnostic thread-mode `embassy-executor` plus
+`embassy-time`. The i.MX8M Plus M7 has no vendor Embassy HAL, so `src/time.rs`
+registers a **SysTick-backed time driver** (via `systick-timer`) to supply the
+global time base that `embassy-time` needs. `SYSTICK_FREQ_HZ` there is a
+bring-up placeholder and **must be set to the real M7 SysTick clock** before
+timeouts can be trusted.
+
 ## Single source of truth
 
 The CAN contract (message IDs, `.dbc`, and the frame⇄signal codec) is **not**
@@ -38,9 +47,10 @@ cargo build --release
 The default target, DBC table capacities, and linker script are configured in
 `.cargo/config.toml`, `rust-toolchain.toml`, and `memory.x`.
 
-> **Hardware note:** `memory.x` and the CAN/RPMsg/watchdog drivers are
-> placeholders. Set the TCM origins to match your U-Boot `bootaux` load address
-> and implement the peripheral drivers before running on real hardware.
+> **Hardware note:** `memory.x`, `SYSTICK_FREQ_HZ` (in `src/time.rs`), and the
+> CAN/RPMsg/watchdog drivers are placeholders. Set the memory origins to match
+> your U-Boot `bootaux` load address, calibrate the SysTick clock, and implement
+> the peripheral drivers before running on real hardware.
 
 ## Status
 

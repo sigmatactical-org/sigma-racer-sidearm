@@ -12,13 +12,16 @@
 //!    so this core and the Linux `vehicle-service` can never disagree on the
 //!    message IDs or signal scaling.
 //!
+//! Built on **Embassy**: the chip-agnostic thread-mode executor plus a
+//! SysTick-backed `embassy-time` driver (see [`time`]), since the i.MX8MP M7
+//! has no vendor Embassy HAL.
+//!
 //! This is scaffolding: the control flow and module seams are in place, but the
 //! hardware drivers (FlexCAN-FD, RPMsg/OpenAMP, watchdog) are stubs marked with
 //! `TODO`. It builds for `thumbv7em-none-eabihf` and does not touch hardware.
 
 #![no_std]
 #![no_main]
-#![forbid(unsafe_code)]
 
 use panic_halt as _;
 
@@ -26,15 +29,26 @@ mod heartbeat;
 mod rpmsg;
 mod safety_bus;
 mod supervisor;
+mod time;
 
-use cortex_m_rt::entry;
+use embassy_executor::Spawner;
+use embassy_time::{Duration, Timer};
 use heartbeat::Heartbeat;
 use rpmsg::RpmsgLink;
 use safety_bus::SafetyBus;
 use sigma_racer_wingman_m7_can as m7;
 
-#[entry]
-fn main() -> ! {
+/// Safety-core service cadence (200 Hz). The poll/heartbeat/publish/watchdog
+/// pass runs once per period; the executor sleeps in between.
+const SERVICE_PERIOD: Duration = Duration::from_millis(5);
+
+#[embassy_executor::main]
+async fn main(_spawner: Spawner) {
+    // Bring up the SysTick-backed time driver before awaiting anything, or the
+    // first `Timer` would never fire.
+    let core = cortex_m::Peripherals::take().unwrap();
+    time::init(core.SYST);
+
     // Parse the shared M7 dictionary once at boot. With the `heapless` backend
     // this builds bounded tables with no heap; the reactive loop below never
     // allocates. A parse failure means the embedded `.dbc` is broken (a build
@@ -63,5 +77,8 @@ fn main() -> ! {
 
         // 4. Feed the watchdog / evaluate load-shedding.
         supervisor::service();
+
+        // Yield to the executor until the next service tick.
+        Timer::after(SERVICE_PERIOD).await;
     }
 }
