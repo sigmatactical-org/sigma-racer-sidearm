@@ -33,20 +33,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
 
 [[package]]
-name = "cafe-racer-sidearm"
-version = "0.1.0"
-dependencies = [
- "cortex-m",
- "cortex-m-rt",
- "embassy-executor",
- "embassy-time",
- "embassy-time-driver",
- "panic-halt",
- "sigma-racer-wingman-m7-can",
- "systick-timer",
-]
-
-[[package]]
 name = "cc"
 version = "1.2.66"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -492,6 +478,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "977e65031cbd5b33463cdb8313fb06a2fb0b548cd81743c18c2d3a639e98a0be"
 dependencies = [
  "heapless",
+]
+
+[[package]]
+name = "sigma-racer-sidearm"
+version = "0.1.0"
+dependencies = [
+ "cortex-m",
+ "cortex-m-rt",
+ "embassy-executor",
+ "embassy-time",
+ "embassy-time-driver",
+ "panic-halt",
+ "sigma-racer-wingman-m7-can",
+ "systick-timer",
 ]
 
 [[package]]

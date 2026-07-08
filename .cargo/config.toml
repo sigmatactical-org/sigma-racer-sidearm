@@ -15,3 +15,6 @@ DBC_MAX_MESSAGES = "16"
 DBC_MAX_SIGNALS_PER_MESSAGE = "8"
 DBC_MAX_NODES = "4"
 DBC_MAX_EXTENDED_MULTIPLEXING = "8"
+
+[patch."ssh://git@github.com/sigmatactical-org/sigma-racer-probe.git"]
+sigma-racer-wingman-m7-can = { path = "../sigma-racer-probe" }

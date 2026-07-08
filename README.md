@@ -1,4 +1,4 @@
-# cafe-racer-sidearm
+# sigma-racer-sidearm
 
 All-Rust **M7 safety-core** firmware for the **Sigma Racer Wingman** instrument
 cluster, running on the i.MX8M Plus **Cortex-M7** real-time core alongside the
@@ -33,7 +33,7 @@ timeouts can be trusted.
 
 The CAN contract (message IDs, `.dbc`, and the frame⇄signal codec) is **not**
 defined here — it comes from the shared
-[`sigma-racer-wingman-m7-can`](../sigma-instrumentation/sigma-racer-wingman-m7-can)
+[`sigma-racer-wingman-m7-can`](../sigma-racer-probe)
 crate, which the Linux `sigma-racer-vehicle` also uses. This firmware builds it with
 the `heapless` backend so the reactive loop is allocation-free.
 

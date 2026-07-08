@@ -1,11 +1,13 @@
 [package]
-name = "cafe-racer-sidearm"
+name = "sigma-racer-sidearm"
 version = "0.1.0"
 description = "All-Rust M7 safety-core firmware for the Sigma Racer Wingman cluster (i.MX8M Plus Cortex-M7)"
 edition = "2024"
 rust-version = "1.90.0"
 license = "MIT OR Apache-2.0"
 authors = ["Sigma Tactical Group contributors <https://github.com/sigmatactical-org>"]
+repository = "https://github.com/sigmatactical-org/sigma-racer-sidearm"
+homepage = "https://github.com/sigmatactical-org/sigma-racer-sidearm"
 publish = false
 
 # Standalone firmware crate — its own workspace so the bare-metal target and
@@ -29,7 +31,7 @@ systick-timer = { version = "0.2.3", features = ["embassy-time-driver"] }
 # The shared M7 CAN contract — same message IDs/scaling/codec the Linux
 # sigma-racer-vehicle uses. `heapless` keeps the reactive path allocation-free
 # (DBC table capacities are set in .cargo/config.toml).
-sigma-racer-wingman-m7-can = { path = "../sigma-instrumentation/sigma-racer-wingman-m7-can", default-features = false, features = ["heapless"] }
+sigma-racer-wingman-m7-can = { git = "ssh://git@github.com/sigmatactical-org/sigma-racer-probe.git", rev = "ac8b56b", default-features = false, features = ["heapless"] }
 
 [profile.dev]
 panic = "abort"

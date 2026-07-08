@@ -1,4 +1,4 @@
-//! # cafe-racer-sidearm
+//! # sigma-racer-sidearm
 //!
 //! All-Rust **M7 safety-core** firmware for the Sigma Racer Wingman instrument
 //! cluster, targeting the i.MX8M Plus **Cortex-M7** real-time core.
