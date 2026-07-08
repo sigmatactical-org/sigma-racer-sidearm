@@ -1,3 +1,7 @@
+[workspace]
+members = ["sigma-racer-wingman-m7-can"]
+resolver = "2"
+
 [package]
 name = "sigma-racer-sidearm"
 version = "0.1.0"
@@ -9,10 +13,6 @@ authors = ["Sigma Tactical Group contributors <https://github.com/sigmatactical-
 repository = "https://github.com/sigmatactical-org/sigma-racer-sidearm"
 homepage = "https://github.com/sigmatactical-org/sigma-racer-sidearm"
 publish = false
-
-# Standalone firmware crate — its own workspace so the bare-metal target and
-# linker config never leak into (or fight with) the std host workspaces.
-[workspace]
 
 [dependencies]
 cortex-m = { version = "0.7.7", features = ["inline-asm", "critical-section-single-core"] }
@@ -28,10 +28,9 @@ embassy-time = { version = "0.5.1", features = ["tick-hz-1_000"] }
 embassy-time-driver = "0.2"
 systick-timer = { version = "0.2.3", features = ["embassy-time-driver"] }
 
-# The shared M7 CAN contract — same message IDs/scaling/codec the Linux
-# sigma-racer-vehicle uses. `heapless` keeps the reactive path allocation-free
-# (DBC table capacities are set in .cargo/config.toml).
-sigma-racer-wingman-m7-can = { git = "ssh://git@github.com/sigmatactical-org/sigma-racer-probe.git", rev = "ac8b56b", default-features = false, features = ["heapless"] }
+# M7 safety-bus CAN contract — co-located in this workspace; `heapless` keeps
+# the reactive path allocation-free (DBC table capacities in .cargo/config.toml).
+sigma-racer-wingman-m7-can = { path = "sigma-racer-wingman-m7-can", default-features = false, features = ["heapless"] }
 
 [profile.dev]
 panic = "abort"

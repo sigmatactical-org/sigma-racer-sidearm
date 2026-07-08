@@ -4,6 +4,17 @@ All-Rust **M7 safety-core** firmware for the **Sigma Racer Wingman** instrument
 cluster, running on the i.MX8M Plus **Cortex-M7** real-time core alongside the
 Linux (A53) cockpit.
 
+## Workspace
+
+| Crate | Role |
+|-------|------|
+| **`sigma-racer-sidearm`** (root) | M7 Embassy firmware binary |
+| **`sigma-racer-wingman-m7-can`** | Shared M7 safety-bus CAN dictionary and codec |
+
+The CAN contract is co-located here so the M7 firmware and Linux stack
+(`sigma-racer-vehicle`, `sigma-racer-efi`) depend on one repo for message IDs,
+`.dbc`, and frame⇄signal encoding.
+
 ## Role
 
 The M7 is the deterministic, always-on safety domain, isolated from the A53
@@ -29,19 +40,12 @@ global time base that `embassy-time` needs. `SYSTICK_FREQ_HZ` there is a
 bring-up placeholder and **must be set to the real M7 SysTick clock** before
 timeouts can be trusted.
 
-## Single source of truth
-
-The CAN contract (message IDs, `.dbc`, and the frame⇄signal codec) is **not**
-defined here — it comes from the shared
-[`sigma-racer-wingman-m7-can`](../sigma-racer-probe)
-crate, which the Linux `sigma-racer-vehicle` also uses. This firmware builds it with
-the `heapless` backend so the reactive loop is allocation-free.
-
 ## Build
 
 ```bash
 cargo build            # thumbv7em-none-eabihf (default target)
 cargo build --release
+cargo test -p sigma-racer-wingman-m7-can
 ```
 
 The default target, DBC table capacities, and linker script are configured in
