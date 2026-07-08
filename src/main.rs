@@ -9,7 +9,7 @@
 //! 2. **No telltale output** — the M7 is a real-time CAN gateway + supervisor,
 //!    not a lamp driver.
 //! 3. **All Rust** — reusing the shared [`sigma_racer_wingman_m7_can`] contract
-//!    so this core and the Linux `vehicle-service` can never disagree on the
+//!    so this core and the Linux `sigma-racer-vehicle` can never disagree on the
 //!    message IDs or signal scaling.
 //!
 //! Built on **Embassy**: the chip-agnostic thread-mode executor plus a

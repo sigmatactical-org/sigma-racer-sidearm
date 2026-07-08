@@ -27,7 +27,7 @@ embassy-time-driver = "0.2"
 systick-timer = { version = "0.2.3", features = ["embassy-time-driver"] }
 
 # The shared M7 CAN contract — same message IDs/scaling/codec the Linux
-# vehicle-service uses. `heapless` keeps the reactive path allocation-free
+# sigma-racer-vehicle uses. `heapless` keeps the reactive path allocation-free
 # (DBC table capacities are set in .cargo/config.toml).
 sigma-racer-wingman-m7-can = { path = "../sigma-instrumentation/sigma-racer-wingman-m7-can", default-features = false, features = ["heapless"] }
 

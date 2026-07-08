@@ -17,7 +17,7 @@ Linux side:
 | **Watchdog + load-shed anchor** | stub (`supervisor.rs`) |
 
 Linux owns a **second, non-safety bus** independently (already handled by
-`vehicle-service`'s SocketCAN path). There is **no telltale/lamp output** on the
+`sigma-racer-vehicle`'s SocketCAN path). There is **no telltale/lamp output** on the
 M7 by design — it is a real-time CAN gateway and supervisor, not a display.
 
 ## Runtime
@@ -34,7 +34,7 @@ timeouts can be trusted.
 The CAN contract (message IDs, `.dbc`, and the frame⇄signal codec) is **not**
 defined here — it comes from the shared
 [`sigma-racer-wingman-m7-can`](../sigma-instrumentation/sigma-racer-wingman-m7-can)
-crate, which the Linux `vehicle-service` also uses. This firmware builds it with
+crate, which the Linux `sigma-racer-vehicle` also uses. This firmware builds it with
 the `heapless` backend so the reactive loop is allocation-free.
 
 ## Build

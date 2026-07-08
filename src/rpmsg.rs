@@ -1,6 +1,6 @@
 //! **RPMsg / OpenAMP** gateway to the A53 Linux side.
 //!
-//! Hands digested, timestamped vehicle state up to Linux so `vehicle-service`
+//! Hands digested, timestamped vehicle state up to Linux so `sigma-racer-vehicle`
 //! consumes a clean stream instead of racing the raw bus. **STUB** — the
 //! virtio/RPMsg endpoint is not implemented yet.
 
@@ -21,6 +21,6 @@ impl RpmsgLink {
     /// Publish the latest vehicle state to Linux.
     pub fn publish(&mut self, _state: &M7Signals) {
         // TODO: serialize `state` and enqueue it on the rpmsg channel to
-        // vehicle-service (which already supports a second, non-safety bus).
+        // sigma-racer-vehicle (which already supports a second, non-safety bus).
     }
 }
