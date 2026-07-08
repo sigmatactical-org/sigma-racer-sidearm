@@ -8,7 +8,7 @@
 //!    owns a second bus independently.
 //! 2. **No telltale output** — the M7 is a real-time CAN gateway + supervisor,
 //!    not a lamp driver.
-//! 3. **All Rust** — reusing the shared [`sigma_racer_wingman_m7_can`] contract
+//! 3. **All Rust** — reusing the shared [`sigma_racer_sidearm`] contract
 //!    so this core and the Linux `sigma-racer-vehicle` can never disagree on the
 //!    message IDs or signal scaling.
 //!
@@ -25,18 +25,16 @@
 
 use panic_halt as _;
 
-mod heartbeat;
+mod bus;
 mod rpmsg;
-mod safety_bus;
 mod supervisor;
 mod time;
 
+use bus::{Heartbeat, SafetyBus};
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
-use heartbeat::Heartbeat;
 use rpmsg::RpmsgLink;
-use safety_bus::SafetyBus;
-use sigma_racer_wingman_m7_can as m7;
+use sigma_racer_sidearm as m7;
 
 /// Safety-core service cadence (200 Hz). The poll/heartbeat/publish/watchdog
 /// pass runs once per period; the executor sleeps in between.

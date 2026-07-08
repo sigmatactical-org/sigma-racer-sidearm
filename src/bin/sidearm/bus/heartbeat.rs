@@ -4,7 +4,7 @@
 //! alive even while the A53/Linux side is rebooting, updating (RAUC A/B swap),
 //! or crashed. **STUB** — timing and the real frame layout are not wired yet.
 
-use crate::safety_bus::SafetyBus;
+use super::safety_bus::SafetyBus;
 
 /// Periodic ECU heartbeat emitter.
 #[derive(Default)]

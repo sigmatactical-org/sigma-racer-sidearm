@@ -486,19 +486,12 @@ version = "0.1.0"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
+ "dbc-rs",
  "embassy-executor",
  "embassy-time",
  "embassy-time-driver",
  "panic-halt",
- "sigma-racer-wingman-m7-can",
  "systick-timer",
-]
-
-[[package]]
-name = "sigma-racer-wingman-m7-can"
-version = "0.1.0"
-dependencies = [
- "dbc-rs",
 ]
 
 [[package]]

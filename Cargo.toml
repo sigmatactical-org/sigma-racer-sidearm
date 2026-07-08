@@ -1,11 +1,7 @@
-[workspace]
-members = ["sigma-racer-wingman-m7-can"]
-resolver = "2"
-
 [package]
 name = "sigma-racer-sidearm"
 version = "0.1.0"
-description = "All-Rust M7 safety-core firmware for the Sigma Racer Wingman cluster (i.MX8M Plus Cortex-M7)"
+description = "M7 safety-bus CAN contract and Sigma Racer Wingman Cortex-M7 firmware"
 edition = "2024"
 rust-version = "1.90.0"
 license = "MIT OR Apache-2.0"
@@ -14,23 +10,43 @@ repository = "https://github.com/sigmatactical-org/sigma-racer-sidearm"
 homepage = "https://github.com/sigmatactical-org/sigma-racer-sidearm"
 publish = false
 
+[lib]
+name = "sigma_racer_sidearm"
+
+[[bin]]
+name = "sigma-racer-sidearm"
+path = "src/bin/sidearm/main.rs"
+required-features = ["firmware"]
+
+[features]
+default = ["std"]
+# Linux consumers (sigma-racer-vehicle, sigma-racer-efi host tests) use `std`.
+std = ["alloc", "dbc-rs/std"]
+alloc = ["dbc-rs/alloc"]
+heapless = ["dbc-rs/heapless"]
+firmware = [
+    "heapless",
+    "dep:cortex-m",
+    "dep:cortex-m-rt",
+    "dep:panic-halt",
+    "dep:embassy-executor",
+    "dep:embassy-time",
+    "dep:embassy-time-driver",
+    "dep:systick-timer",
+]
+
 [dependencies]
-cortex-m = { version = "0.7.7", features = ["inline-asm", "critical-section-single-core"] }
-cortex-m-rt = "0.7.5"
-panic-halt = "1.0.0"
+# Pinned to the 0.5 line so a single dbc-rs version stays in the tree and the
+# parsed `Dbc` remains type-compatible with mdf4-rs's `CanDbcLogger`.
+dbc-rs = { version = "0.5", default-features = false }
 
-# Async runtime. The thread-mode executor is chip-agnostic (it only needs a
-# Cortex-M), so it runs on the i.MX8MP M7 with no vendor HAL.
-embassy-executor = { version = "0.10.0", features = ["platform-cortex-m", "executor-thread"] }
-embassy-time = { version = "0.5.1", features = ["tick-hz-1_000"] }
-# `embassy-time` needs a global time driver; there is no i.MX8MP-M7 HAL to
-# supply one, so we register a SysTick-backed driver (see `src/time.rs`).
-embassy-time-driver = "0.2"
-systick-timer = { version = "0.2.3", features = ["embassy-time-driver"] }
-
-# M7 safety-bus CAN contract — co-located in this workspace; `heapless` keeps
-# the reactive path allocation-free (DBC table capacities in .cargo/config.toml).
-sigma-racer-wingman-m7-can = { path = "sigma-racer-wingman-m7-can", default-features = false, features = ["heapless"] }
+cortex-m = { version = "0.7.7", features = ["inline-asm", "critical-section-single-core"], optional = true }
+cortex-m-rt = { version = "0.7.5", optional = true }
+panic-halt = { version = "1.0.0", optional = true }
+embassy-executor = { version = "0.10.0", features = ["platform-cortex-m", "executor-thread"], optional = true }
+embassy-time = { version = "0.5.1", features = ["tick-hz-1_000"], optional = true }
+embassy-time-driver = { version = "0.2", optional = true }
+systick-timer = { version = "0.2.3", features = ["embassy-time-driver"], optional = true }
 
 [profile.dev]
 panic = "abort"

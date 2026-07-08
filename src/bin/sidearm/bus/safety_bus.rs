@@ -4,22 +4,9 @@
 //! bus with tight timing and hardware timestamping. **STUB** — the FlexCAN-FD
 //! driver is not implemented yet; `poll` never yields and `transmit` is a no-op.
 
-use sigma_racer_wingman_m7_can::MESSAGE_IDS;
+use sigma_racer_sidearm::MESSAGE_IDS;
 
-/// A received classic/FD CAN frame (up to 8 bytes of the payload used here).
-#[derive(Clone, Copy, Debug)]
-pub struct Frame {
-    pub id: u32,
-    data: [u8; 8],
-    len: usize,
-}
-
-impl Frame {
-    /// The valid payload bytes for this frame.
-    pub fn payload(&self) -> &[u8] {
-        &self.data[..self.len]
-    }
-}
+use super::frame::Frame;
 
 /// Owns the M7's safety-bus CAN-FD controller.
 #[derive(Default)]

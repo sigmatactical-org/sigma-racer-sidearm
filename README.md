@@ -4,16 +4,18 @@ All-Rust **M7 safety-core** firmware for the **Sigma Racer Wingman** instrument
 cluster, running on the i.MX8M Plus **Cortex-M7** real-time core alongside the
 Linux (A53) cockpit.
 
-## Workspace
+This repository is also the **single source of truth** for the M7 safety-bus CAN
+contract: message IDs, the embedded `.dbc`, and the frame⇄signal codec. The M7
+firmware, Linux stack (`sigma-racer-vehicle`), and ECU (`sigma-racer-efi`) all
+depend on this crate so the compute domains can never disagree on message IDs or
+signal scaling.
 
-| Crate | Role |
-|-------|------|
-| **`sigma-racer-sidearm`** (root) | M7 Embassy firmware binary |
-| **`sigma-racer-wingman-m7-can`** | Shared M7 safety-bus CAN dictionary and codec |
+## Crate layout
 
-The CAN contract is co-located here so the M7 firmware and Linux stack
-(`sigma-racer-vehicle`, `sigma-racer-efi`) depend on one repo for message IDs,
-`.dbc`, and frame⇄signal encoding.
+| Target | Role |
+|--------|------|
+| **`sigma_racer_sidearm` library** | M7 safety-bus CAN dictionary and codec (`std` / `alloc` / `heapless`) |
+| **`sigma-racer-sidearm` binary** | M7 Embassy firmware (`firmware` feature, `thumbv7em-none-eabihf`) |
 
 ## Role
 
@@ -22,8 +24,8 @@ Linux side:
 
 | Responsibility | Status |
 |----------------|--------|
-| Own the **safety CAN-FD bus** to the ECU (`sigma-racer-efi`) | stub (`safety_bus.rs`) |
-| **Fail-operational heartbeat** to the ECU | stub (`heartbeat.rs`) |
+| Own the **safety CAN-FD bus** to the ECU (`sigma-racer-efi`) | stub (`bus/safety_bus.rs`) |
+| **Fail-operational heartbeat** to the ECU | stub (`bus/heartbeat.rs`) |
 | **RPMsg/OpenAMP gateway** — digested state up to Linux | stub (`rpmsg.rs`) |
 | **Watchdog + load-shed anchor** | stub (`supervisor.rs`) |
 
@@ -34,7 +36,7 @@ M7 by design — it is a real-time CAN gateway and supervisor, not a display.
 ## Runtime
 
 Built on **Embassy** — the chip-agnostic thread-mode `embassy-executor` plus
-`embassy-time`. The i.MX8M Plus M7 has no vendor Embassy HAL, so `src/time.rs`
+`embassy-time`. The i.MX8M Plus M7 has no vendor Embassy HAL, so `time.rs`
 registers a **SysTick-backed time driver** (via `systick-timer`) to supply the
 global time base that `embassy-time` needs. `SYSTICK_FREQ_HZ` there is a
 bring-up placeholder and **must be set to the real M7 SysTick clock** before
@@ -43,15 +45,15 @@ timeouts can be trusted.
 ## Build
 
 ```bash
-cargo build            # thumbv7em-none-eabihf (default target)
-cargo build --release
-cargo test -p sigma-racer-wingman-m7-can
+cargo test                                    # host — CAN contract round-trip
+cargo build --no-default-features --features firmware
+cargo build --release --no-default-features --features firmware
 ```
 
 The default target, DBC table capacities, and linker script are configured in
 `.cargo/config.toml`, `rust-toolchain.toml`, and `memory.x`.
 
-> **Hardware note:** `memory.x`, `SYSTICK_FREQ_HZ` (in `src/time.rs`), and the
+> **Hardware note:** `memory.x`, `SYSTICK_FREQ_HZ` (in `src/bin/sidearm/time.rs`), and the
 > CAN/RPMsg/watchdog drivers are placeholders. Set the memory origins to match
 > your U-Boot `bootaux` load address, calibrate the SysTick clock, and implement
 > the peripheral drivers before running on real hardware.

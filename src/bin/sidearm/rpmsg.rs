@@ -4,7 +4,7 @@
 //! consumes a clean stream instead of racing the raw bus. **STUB** — the
 //! virtio/RPMsg endpoint is not implemented yet.
 
-use sigma_racer_wingman_m7_can::M7Signals;
+use sigma_racer_sidearm::M7Signals;
 
 /// RPMsg endpoint publishing state to the Linux cluster.
 #[derive(Default)]
