@@ -9,6 +9,13 @@ pub struct Frame {
 }
 
 impl Frame {
+    pub fn new(id: u32, data: &[u8]) -> Self {
+        let mut buf = [0u8; 8];
+        let len = data.len().min(8);
+        buf[..len].copy_from_slice(&data[..len]);
+        Self { id, data: buf, len }
+    }
+
     /// The valid payload bytes for this frame.
     pub fn payload(&self) -> &[u8] {
         &self.data[..self.len]

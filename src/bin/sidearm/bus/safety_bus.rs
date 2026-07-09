@@ -1,35 +1,30 @@
 //! CAN-FD **safety bus** endpoint to the ECU (`sigma-racer-efi`).
 //!
-//! The M7 owns this controller: it RX/TX-es the safety subset of the vehicle
-//! bus with tight timing and hardware timestamping. **STUB** — the FlexCAN-FD
-//! driver is not implemented yet; `poll` never yields and `transmit` is a no-op.
+//! The M7 owns FLEXCAN1 on Verdin SODIMM 20/22. Linux `flexcan1` must be
+//! disabled in the HMP overlay so only the M7 touches the transceiver.
 
-use sigma_racer_sidearm::MESSAGE_IDS;
+use sigma_racer_sidearm::{hw::FlexCan1, MESSAGE_IDS};
 
 use super::frame::Frame;
 
 /// Owns the M7's safety-bus CAN-FD controller.
-#[derive(Default)]
 pub struct SafetyBus {
-    // TODO: hold the FlexCAN-FD peripheral (via a PAC) and its RX/TX mailboxes.
+    can: FlexCan1,
 }
 
 impl SafetyBus {
     pub fn new() -> Self {
-        // TODO: configure CAN-FD (e.g. 1 Mbit/s nominal, higher data phase),
-        // install acceptance filters for `MESSAGE_IDS`, enable timestamping.
         let _ = MESSAGE_IDS;
-        Self::default()
+        Self { can: FlexCan1::new() }
     }
 
     /// Non-blocking receive: returns the next queued frame, if any.
     pub fn poll(&mut self) -> Option<Frame> {
-        // TODO: pop from the RX FIFO / mailbox.
-        None
+        self.can.poll().map(|rx| Frame::new(rx.id, &rx.data[..rx.len]))
     }
 
     /// Queue a frame for transmission on the safety bus.
-    pub fn transmit(&mut self, _id: u32, _payload: &[u8]) {
-        // TODO: write into a TX mailbox.
+    pub fn transmit(&mut self, id: u32, payload: &[u8]) {
+        self.can.transmit(id, payload);
     }
 }

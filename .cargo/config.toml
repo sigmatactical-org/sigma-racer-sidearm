@@ -3,7 +3,10 @@
 target = "thumbv7em-none-eabihf"
 
 [target.thumbv7em-none-eabihf]
-rustflags = ["-C", "link-arg=-Tlink.x"]
+rustflags = [
+    "-C", "link-arg=-Tlink.x",
+    "-C", "link-arg=-Tlink-rsc.x",
+]
 # When you have a probe wired up, a runner such as:
 #   runner = "probe-rs run --chip <mimx8mp-m7-chip>"
 # lets `cargo run` flash/attach directly.

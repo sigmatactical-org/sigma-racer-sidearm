@@ -11,6 +11,9 @@ pub const CHASSIS_ELECTRICAL: u32 = 0x200;
 /// Odometer and trip meters.
 pub const TRIP_ODOMETER: u32 = 0x220;
 
+/// M7 → ECU fail-operational heartbeat (not in the DBC; single-byte sequence).
+pub const M7_HEARTBEAT: u32 = 0x080;
+
 /// Every message ID in the dictionary, in transmit order.
 pub const MESSAGE_IDS: [u32; 5] = [
     ENGINE_STATUS,

@@ -1,27 +1,36 @@
 //! Fail-operational **heartbeat** to the ECU.
 //!
-//! The M7 emits a periodic liveness frame so the ECU knows the safety core is
-//! alive even while the A53/Linux side is rebooting, updating (RAUC A/B swap),
-//! or crashed. **STUB** — timing and the real frame layout are not wired yet.
+//! 50 Hz liveness frame on `M7_HEARTBEAT` (0x080) so the ECU knows the safety
+//! core is alive while Linux reboots or crashes.
+
+use sigma_racer_sidearm::M7_HEARTBEAT;
 
 use super::safety_bus::SafetyBus;
 
+/// Heartbeat rate: once every N service ticks (200 Hz / 4 = 50 Hz).
+const TICK_DIVISOR: u8 = 4;
+
 /// Periodic ECU heartbeat emitter.
-#[derive(Default)]
 pub struct Heartbeat {
     sequence: u8,
+    tick: u8,
 }
 
 impl Heartbeat {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            sequence: 0,
+            tick: 0,
+        }
     }
 
-    /// Emit the heartbeat frame for this cycle.
+    /// Emit the heartbeat frame when the rate limiter allows.
     pub fn tick(&mut self, bus: &mut SafetyBus) {
+        self.tick = self.tick.wrapping_add(1);
+        if self.tick % TICK_DIVISOR != 0 {
+            return;
+        }
         self.sequence = self.sequence.wrapping_add(1);
-        // TODO: rate-limit to the agreed heartbeat period (timer-driven) and use
-        // the real heartbeat message ID/layout from the shared dictionary.
-        bus.transmit(0x000, &[self.sequence]);
+        bus.transmit(M7_HEARTBEAT, &[self.sequence, 0, 0, 0, 0, 0, 0, 0]);
     }
 }

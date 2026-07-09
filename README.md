@@ -14,8 +14,9 @@ signal scaling.
 
 | Target | Role |
 |--------|------|
-| **`sigma_racer_sidearm` library** | M7 safety-bus CAN dictionary and codec (`std` / `alloc` / `heapless`) |
-| **`sigma-racer-sidearm` binary** | M7 Embassy firmware (`firmware` feature, `thumbv7em-none-eabihf`) |
+| **`sigma_racer_sidearm` library** | M7 safety-bus CAN dictionary, codec, and RPMsg wire format |
+| **`sigma-racer-sidearm-bringup`** | UART boot proof (`bringup` feature) |
+| **`sigma-racer-sidearm` binary** | Production Embassy firmware (`firmware` feature) |
 
 ## Role
 
@@ -24,41 +25,34 @@ Linux side:
 
 | Responsibility | Status |
 |----------------|--------|
-| Own the **safety CAN-FD bus** to the ECU (`sigma-racer-efi`) | stub (`bus/safety_bus.rs`) |
-| **Fail-operational heartbeat** to the ECU | stub (`bus/heartbeat.rs`) |
-| **RPMsg/OpenAMP gateway** — digested state up to Linux | stub (`rpmsg.rs`) |
-| **Watchdog + load-shed anchor** | stub (`supervisor.rs`) |
+| Own the **safety CAN bus** to the ECU (`sigma-racer-efi`) on FLEXCAN1 | implemented (`hw/flexcan.rs`) |
+| **Fail-operational heartbeat** to the ECU (`0x080` @ 50 Hz) | implemented (`bus/heartbeat.rs`) |
+| **RPMsg gateway** — digested state up to Linux | implemented (`hw/rpmsg.rs`, `wire.rs`) |
+| **Watchdog + load-shed anchor** | partial (`supervisor.rs` — kick counter; SoC WDOG TBD) |
 
-Linux owns a **second, non-safety bus** independently (already handled by
-`sigma-racer-vehicle`'s SocketCAN path). There is **no telltale/lamp output** on the
-M7 by design — it is a real-time CAN gateway and supervisor, not a display.
+Linux owns a **second, non-safety bus** on FLEXCAN2 (`can1`) independently.
+There is **no telltale/lamp output** on the M7 by design.
 
 ## Runtime
 
-Built on **Embassy** — the chip-agnostic thread-mode `embassy-executor` plus
-`embassy-time`. The i.MX8M Plus M7 has no vendor Embassy HAL, so `time.rs`
-registers a **SysTick-backed time driver** (via `systick-timer`) to supply the
-global time base that `embassy-time` needs. `SYSTICK_FREQ_HZ` there is a
-bring-up placeholder and **must be set to the real M7 SysTick clock** before
-timeouts can be trusted.
+Built on **Embassy** with a SysTick-backed `embassy-time` driver (`time.rs`).
+Platform init (`hw/`) runs in `pre_init`: cache policy, CCM gates, RDC, UART,
+FLEXCAN1, and the OpenAMP resource table for Linux `remoteproc`.
 
 ## Build
 
 ```bash
-cargo test                                    # host — CAN contract round-trip
-cargo build --no-default-features --features firmware
+cargo test --target x86_64-unknown-linux-gnu          # host — contract + wire codec
+cargo build --no-default-features --features bringup  # UART boot proof
 cargo build --release --no-default-features --features firmware
 ```
 
-The default target, DBC table capacities, and linker script are configured in
-`.cargo/config.toml`, `rust-toolchain.toml`, and `memory.x`.
-
-> **Hardware note:** `memory.x`, `SYSTICK_FREQ_HZ` (in `src/bin/sidearm/time.rs`), and the
-> CAN/RPMsg/watchdog drivers are placeholders. Set the memory origins to match
-> your U-Boot `bootaux` load address, calibrate the SysTick clock, and implement
-> the peripheral drivers before running on real hardware.
+Linker scripts: `memory-ddr.x` (default), `memory-itcm.x` (`memory-itcm` feature),
+`link-rsc.x` (`.resource_table` section). See [`docs/M7_BRINGUP.md`](docs/M7_BRINGUP.md).
 
 ## Status
 
-Scaffolding: the boot flow and module seams compile and are wired to the shared
-CAN contract; the hardware drivers are `TODO` stubs. It does not touch hardware.
+First-silicon ready scaffolding: boot proof, DDR remoteproc layout, FLEXCAN1
+driver, virtio RPMsg publisher, and Linux Wingman integration (DT overlay,
+firmware recipe, `sigma-racer-vehicle` RPMsg source). Validate on Verdin
+hardware before production sign-off.

@@ -25,6 +25,11 @@
 
 use panic_halt as _;
 
+#[cortex_m_rt::pre_init]
+unsafe fn pre_init() {
+    sigma_racer_sidearm::hw::init();
+}
+
 mod bus;
 mod rpmsg;
 mod supervisor;

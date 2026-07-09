@@ -18,7 +18,13 @@
 //! - `cached` — `std`-only lazy [`dbc`] / [`decode`] / [`encode_all`] helpers
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![forbid(unsafe_code)]
+#![cfg_attr(
+    not(any(feature = "bringup", feature = "firmware")),
+    forbid(unsafe_code)
+)]
+
+#[cfg(any(feature = "bringup", feature = "firmware"))]
+pub mod hw;
 
 pub use dbc_rs::{Dbc, DecodedSignal, Error};
 
@@ -33,10 +39,13 @@ pub use database::{parse, M7_DBC};
 pub use decode::decode_into;
 pub use encode::encode_frames;
 pub use message::{
-    CHASSIS_ELECTRICAL, ENGINE_STATUS, MESSAGE_IDS, THROTTLE_GEAR, TRIP_ODOMETER, WHEEL_SPEED,
+    CHASSIS_ELECTRICAL, ENGINE_STATUS, M7_HEARTBEAT, MESSAGE_IDS, THROTTLE_GEAR, TRIP_ODOMETER,
+    WHEEL_SPEED,
 };
 pub use performance_mode::PerformanceMode;
 pub use signals::M7Signals;
+pub mod wire;
+pub use wire::{decode as decode_wire, encode as encode_wire, MAGIC as WIRE_MAGIC, VERSION as WIRE_VERSION};
 
 #[cfg(feature = "std")]
 mod cached;

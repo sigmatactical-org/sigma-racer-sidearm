@@ -1,26 +1,32 @@
 //! **RPMsg / OpenAMP** gateway to the A53 Linux side.
 //!
-//! Hands digested, timestamped vehicle state up to Linux so `sigma-racer-vehicle`
-//! consumes a clean stream instead of racing the raw bus. **STUB** — the
-//! virtio/RPMsg endpoint is not implemented yet.
+//! Publishes [`M7Signals`] snapshots on the `sigma-m7-signals` virtio endpoint
+//! for `sigma-racer-vehicle` to consume.
 
-use sigma_racer_sidearm::M7Signals;
+use sigma_racer_sidearm::{encode_wire, hw::RpmsgTx, M7Signals};
 
 /// RPMsg endpoint publishing state to the Linux cluster.
-#[derive(Default)]
 pub struct RpmsgLink {
-    // TODO: hold the RPMsg channel / virtio ring endpoint.
+    tx: RpmsgTx,
+    buf: [u8; 64],
 }
 
 impl RpmsgLink {
     pub fn new() -> Self {
-        // TODO: create the rpmsg endpoint (rpmsg-lite / OpenAMP) and announce it.
-        Self::default()
+        let mut tx = RpmsgTx::new();
+        tx.init();
+        Self {
+            tx,
+            buf: [0; 64],
+        }
     }
 
     /// Publish the latest vehicle state to Linux.
-    pub fn publish(&mut self, _state: &M7Signals) {
-        // TODO: serialize `state` and enqueue it on the rpmsg channel to
-        // sigma-racer-vehicle (which already supports a second, non-safety bus).
+    pub fn publish(&mut self, state: &M7Signals) {
+        let seq = self.tx.sequence();
+        let Some(len) = encode_wire(seq, state, &mut self.buf) else {
+            return;
+        };
+        let _ = self.tx.send(&self.buf[..len]);
     }
 }

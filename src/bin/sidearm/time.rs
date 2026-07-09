@@ -7,17 +7,17 @@
 //!
 //! # Calibration
 //!
-//! [`SYSTICK_FREQ_HZ`] **must** match the actual SysTick clock on the M7 (the
-//! core clock, or its reference clock, depending on the `CLKSOURCE` bit and the
-//! U-Boot `bootaux` setup). The placeholder below only makes timing *plausible*
-//! for bring-up; verify it against the real clock tree before trusting timeouts.
+//! [`SYSTICK_FREQ_HZ`] must match the actual SysTick clock on the M7. It is
+//! wired to [`sigma_racer_sidearm::hw::CORE_CLK_HZ`] (800 MHz nominal); verify
+//! on hardware before trusting timeouts.
 
 use cortex_m::peripheral::SYST;
+use sigma_racer_sidearm::hw::CORE_CLK_HZ;
 use systick_timer::SystickDriver;
 
-/// SysTick input clock, in Hz. **Placeholder** — set to the real M7 SysTick
-/// clock for your board before running on hardware.
-const SYSTICK_FREQ_HZ: u64 = 400_000_000;
+/// SysTick input clock, in Hz. Matches the nominal M7 core clock from
+/// [`sigma_racer_sidearm::hw::CORE_CLK_HZ`]; verify on hardware if timeouts drift.
+const SYSTICK_FREQ_HZ: u64 = CORE_CLK_HZ;
 
 /// `embassy-time` tick rate. Kept in sync with the `tick-hz-1_000` feature on
 /// `embassy-time` in `Cargo.toml` (1 ms resolution).
