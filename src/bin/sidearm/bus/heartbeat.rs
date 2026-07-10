@@ -27,7 +27,7 @@ impl Heartbeat {
     /// Emit the heartbeat frame when the rate limiter allows.
     pub fn tick(&mut self, bus: &mut SafetyBus) {
         self.tick = self.tick.wrapping_add(1);
-        if self.tick % TICK_DIVISOR != 0 {
+        if !self.tick.is_multiple_of(TICK_DIVISOR) {
             return;
         }
         self.sequence = self.sequence.wrapping_add(1);

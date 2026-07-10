@@ -2,6 +2,16 @@
 [build]
 target = "thumbv7em-none-eabihf"
 
+# The default target above is bare-metal, so a plain `cargo test` tries to build
+# the `std`-featured library (and dbc-rs) for thumbv7em and fails with
+# "can't find crate for `std`". Use these aliases for the host-side library
+# tests / std build instead:
+#   cargo test-host     # run the contract + wire codec tests on the host
+#   cargo build-host    # std build of the library for the host
+[alias]
+test-host = "test --target x86_64-unknown-linux-gnu"
+build-host = "build --target x86_64-unknown-linux-gnu"
+
 [target.thumbv7em-none-eabihf]
 rustflags = [
     "-C", "link-arg=-Tlink.x",

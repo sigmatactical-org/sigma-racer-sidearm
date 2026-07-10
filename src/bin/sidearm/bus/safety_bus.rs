@@ -3,7 +3,7 @@
 //! The M7 owns FLEXCAN1 on Verdin SODIMM 20/22. Linux `flexcan1` must be
 //! disabled in the HMP overlay so only the M7 touches the transceiver.
 
-use sigma_racer_sidearm::{hw::FlexCan1, MESSAGE_IDS};
+use sigma_racer_sidearm::hw::FlexCan1;
 
 use super::frame::Frame;
 
@@ -14,7 +14,6 @@ pub struct SafetyBus {
 
 impl SafetyBus {
     pub fn new() -> Self {
-        let _ = MESSAGE_IDS;
         Self { can: FlexCan1::new() }
     }
 

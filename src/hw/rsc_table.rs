@@ -2,7 +2,9 @@
 //!
 //! Layout follows Zephyr `nxp_resource_table.c` for imx8mp DDR firmware.
 
+use core::cell::UnsafeCell;
 use core::mem::size_of;
+use core::ptr::addr_of;
 
 const RSC_VENDOR_START: u32 = 128;
 const RSC_VDEV: u32 = 3;
@@ -36,7 +38,11 @@ struct FwRscVdev {
     dfeatures: u32,
     gfeatures: u32,
     config_len: u32,
-    status: u8,
+    // Interior-mutable: the firmware writes DRIVER_OK here and Linux DMA-reads
+    // it, so this byte must not be treated as an immutable `static` (writing
+    // through a `&static` cast to `*mut` is UB). `UnsafeCell<u8>` is layout-
+    // identical to `u8`, so the on-wire resource-table layout is unchanged.
+    status: UnsafeCell<u8>,
     num_of_vrings: u8,
     reserved: [u8; 2],
 }
@@ -60,10 +66,17 @@ struct NxpResourceTable {
     vring1: FwRscVring,
 }
 
+/// Newtype so the table (now holding an `UnsafeCell`) can live in a `static`.
+/// The memory is shared with Linux and accessed only through volatile/unaligned
+/// raw ops, so asserting `Sync` is sound.
+struct SyncTable(NxpResourceTable);
+// SAFETY: access is via raw volatile/unaligned pointers; no `&mut` aliasing.
+unsafe impl Sync for SyncTable {}
+
 /// Linux parses this blob from the `.resource_table` ELF section.
 #[unsafe(link_section = ".resource_table")]
 #[used]
-static RESOURCE_TABLE: NxpResourceTable = NxpResourceTable {
+static RESOURCE_TABLE: SyncTable = SyncTable(NxpResourceTable {
     hdr: ResourceHdr {
         ver: 1,
         num: 2,
@@ -84,7 +97,7 @@ static RESOURCE_TABLE: NxpResourceTable = NxpResourceTable {
         dfeatures: 1,
         gfeatures: 0,
         config_len: 0,
-        status: 0,
+        status: UnsafeCell::new(0),
         num_of_vrings: 2,
         reserved: [0, 0],
     },
@@ -102,31 +115,27 @@ static RESOURCE_TABLE: NxpResourceTable = NxpResourceTable {
         notifyid: 1,
         reserved: 0,
     },
-};
+});
 
 /// Mutable pointer to the virtio status byte inside the resource table.
+///
+/// Sound because `status` is an `UnsafeCell`, so writing through this pointer is
+/// permitted; the byte's alignment is 1, so no misaligned access.
 pub fn vdev_status_ptr() -> *mut u8 {
-    unsafe {
-        let base = &RESOURCE_TABLE as *const NxpResourceTable as *mut u8;
-        base.add(OFF_VDEV as usize + 24)
-    }
+    RESOURCE_TABLE.0.vdev.status.get()
 }
 
 /// Host-patched TX vring device address (Linux fills `ADDR_ANY` at load).
 pub fn vring0_da() -> u32 {
-    vring_da(OFF_VDEV + size_of::<FwRscVdev>() as u32)
+    // `addr_of!` avoids forming a reference to the packed (possibly-misaligned)
+    // field; `read_unaligned` copes with the alignment. The `UnsafeCell` in the
+    // table keeps the compiler from assuming the host-patched value is constant.
+    unsafe { addr_of!(RESOURCE_TABLE.0.vring0.da).read_unaligned() }
 }
 
 /// Host-patched RX vring device address.
 pub fn vring1_da() -> u32 {
-    vring_da(OFF_VDEV + size_of::<FwRscVdev>() as u32 + size_of::<FwRscVring>() as u32)
-}
-
-fn vring_da(off: u32) -> u32 {
-    unsafe {
-        let base = &RESOURCE_TABLE as *const NxpResourceTable as *const u8;
-        core::ptr::read_unaligned(base.add(off as usize) as *const u32)
-    }
+    unsafe { addr_of!(RESOURCE_TABLE.0.vring1.da).read_unaligned() }
 }
 
 /// VirtIO config status: driver OK.

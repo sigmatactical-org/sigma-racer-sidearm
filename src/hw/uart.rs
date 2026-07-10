@@ -26,8 +26,8 @@ mod lpuart {
 
     pub const CTRL_TE: u32 = 1 << 19;
     pub const CTRL_RE: u32 = 1 << 18;
-    /// 8-bit, no parity, one stop bit.
-    pub const CTRL_M_8N1: u32 = 0b00 << 0;
+    /// 8-bit, no parity, one stop bit (M=0, PE=0 — the reset default).
+    pub const CTRL_M_8N1: u32 = 0;
 }
 
 /// Verdin UART4 on SODIMM 151/153 (UART4_DCE — MCU is DTE).

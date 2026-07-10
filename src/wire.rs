@@ -8,12 +8,18 @@ use crate::{M7Signals, PerformanceMode};
 pub const MAGIC: u32 = 0x4D37_5347;
 /// Current wire revision.
 pub const VERSION: u16 = 1;
-/// Header size in bytes.
+/// Header size in bytes: MAGIC (4) + VERSION (2) + seq (2).
 pub const HEADER_LEN: usize = 8;
+/// Total wire packet length: [`HEADER_LEN`] header + fixed signal body.
+///
+/// A single constant used by both [`encode`] and [`decode`] so their length
+/// contracts can never drift (a partial packet would otherwise encode "ok" but
+/// fail to decode).
+pub const PACKET_LEN: usize = 60;
 
 /// Serialize `state` into `buf`. Returns bytes written or `None` if `buf` is too small.
 pub fn encode(seq: u16, state: &M7Signals, buf: &mut [u8]) -> Option<usize> {
-    if buf.len() < 56 {
+    if buf.len() < PACKET_LEN {
         return None;
     }
     buf[0..4].copy_from_slice(&MAGIC.to_le_bytes());
@@ -38,18 +44,13 @@ pub fn encode(seq: u16, state: &M7Signals, buf: &mut [u8]) -> Option<usize> {
     buf[47] = state.dtc_count;
     buf[48..52].copy_from_slice(&state.odometer.to_le_bytes());
     buf[52..56].copy_from_slice(&state.trip1.to_le_bytes());
-    // trip2 shares the tail of a 60-byte frame; keep packet at 60 for alignment.
-    if buf.len() >= 60 {
-        buf[56..60].copy_from_slice(&state.trip2.to_le_bytes());
-        Some(60)
-    } else {
-        Some(56)
-    }
+    buf[56..60].copy_from_slice(&state.trip2.to_le_bytes());
+    Some(PACKET_LEN)
 }
 
 /// Decode a wire packet into `out`. Returns `None` on bad magic/version/length.
 pub fn decode(buf: &[u8], out: &mut M7Signals) -> Option<u16> {
-    if buf.len() < 60 {
+    if buf.len() < PACKET_LEN {
         return None;
     }
     let magic = u32::from_le_bytes(buf[0..4].try_into().ok()?);
@@ -114,12 +115,24 @@ mod tests {
         };
         let mut buf = [0u8; 64];
         let n = encode(42, &sample, &mut buf).unwrap();
+        assert_eq!(n, PACKET_LEN);
         let mut out = M7Signals::default();
         let seq = decode(&buf[..n], &mut out).unwrap();
         assert_eq!(seq, 42);
-        assert!((out.engine_rpm - sample.engine_rpm).abs() < f32::EPSILON);
-        assert_eq!(out.gear, sample.gear);
-        assert_eq!(out.performance_mode, sample.performance_mode);
-        assert_eq!(out.side_stand, sample.side_stand);
+        // Every field must survive the round trip byte-exactly.
+        assert_eq!(out, sample);
+    }
+
+    #[test]
+    fn rejects_short_buffers() {
+        let sample = M7Signals::default();
+        let mut buf = [0u8; 64];
+        // A buffer one byte short of a full packet must fail to encode…
+        assert_eq!(encode(1, &sample, &mut buf[..PACKET_LEN - 1]), None);
+        // …and a full packet truncated by one byte must fail to decode, rather
+        // than silently succeeding (the old 56/60 mismatch).
+        let n = encode(1, &sample, &mut buf).unwrap();
+        let mut out = M7Signals::default();
+        assert_eq!(decode(&buf[..n - 1], &mut out), None);
     }
 }

@@ -79,7 +79,11 @@ impl RpmsgTx {
         }
         let slot_base = POOL_BASE + (self.slot as u32) * POOL_SLOT as u32;
         write_rpmsg_frame(slot_base, payload);
-        mu::kick_host();
+        // If the host mailbox is stalled, drop this notification rather than
+        // block the safety loop; the next tick republishes fresh state anyway.
+        if !mu::kick_host() {
+            return false;
+        }
         self.slot = (self.slot + 1) % POOL_SLOTS;
         self.seq = self.seq.wrapping_add(1);
         true
@@ -115,7 +119,7 @@ fn announce_endpoint() {
     // NS bind: flags bit 0 set in rpmsg_ns_msg; encode in first payload byte after hdr.
     let slot_base = POOL_BASE + POOL_SLOT as u32 * (POOL_SLOTS as u32 - 1);
     write_rpmsg_frame(slot_base, &frame[..name_len + 1]);
-    mu::kick_host();
+    let _ = mu::kick_host(); // best-effort announce
 }
 
 fn write_u8(base: u32, off: usize, v: u8) {

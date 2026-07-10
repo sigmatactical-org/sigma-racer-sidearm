@@ -11,13 +11,16 @@ pub enum PerformanceMode {
 }
 
 impl PerformanceMode {
-    /// Map a raw DBC value onto a mode (unknown values fall back to `Sport`).
+    /// Map a raw DBC value onto a mode. Unknown values fall back to `Std` (the
+    /// documented default) rather than an aggressive mode, in case a corrupt
+    /// frame carries an out-of-table value in the 3-bit field.
     pub fn from_raw(raw: u8) -> Self {
         match raw {
             0 => Self::Rain,
             1 => Self::Std,
+            2 => Self::Sport,
             3 => Self::Track,
-            _ => Self::Sport,
+            _ => Self::Std,
         }
     }
 
