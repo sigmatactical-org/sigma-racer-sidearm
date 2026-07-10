@@ -41,12 +41,16 @@ cargo build --release --no-default-features --features bringup
 
 # Production Embassy firmware (FlexCAN + RPMsg + resource table)
 cargo build --release --no-default-features --features firmware
+
+# Debian package (ELF + sigma-racer-sidearm.service) for updates / images
+./scripts/package-deb.sh
 ```
 
 Artifacts:
 
 - `target/thumbv7em-none-eabihf/release/sigma-racer-sidearm` (ELF, `.resource_table` section)
 - `target/thumbv7em-none-eabihf/release/sigma-racer-sidearm-bringup`
+- `dist/sigma-racer-sidearm-firmware_0.1.0-r0_all.deb`
 
 ## U-Boot `bootaux` (DDR bring-up binary)
 

@@ -45,10 +45,15 @@ FLEXCAN1, and the OpenAMP resource table for Linux `remoteproc`.
 cargo test --target x86_64-unknown-linux-gnu          # host — contract + wire codec
 cargo build --no-default-features --features bringup  # UART boot proof
 cargo build --release --no-default-features --features firmware
+./scripts/package-deb.sh                              # .deb: ELF + remoteproc unit
 ```
 
 Linker scripts: `memory-ddr.x` (default), `memory-itcm.x` (`memory-itcm` feature),
 `link-rsc.x` (`.resource_table` section). See [`docs/M7_BRINGUP.md`](docs/M7_BRINGUP.md).
+
+The Debian package installs `/lib/firmware/sigma-racer-sidearm.elf` and enables
+`sigma-racer-sidearm.service` (loads via `remoteproc0`). Wingman enables it on
+**i.MX 8M Plus** (`INCLUDE_SIDEARM_FIRMWARE=1`); QEMU stays off.
 
 ## Status
 
