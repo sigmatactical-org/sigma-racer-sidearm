@@ -61,3 +61,9 @@ First-silicon ready scaffolding: boot proof, DDR remoteproc layout, FLEXCAN1
 driver, virtio RPMsg publisher, and Linux Wingman integration (DT overlay,
 firmware recipe, `sigma-racer-vehicle` RPMsg source). Validate on Verdin
 hardware before production sign-off.
+
+## Brand & artwork
+
+© Sigma Tactical Group. **All rights reserved.**
+
+The Sigma Tactical Group name, logos, marks, artwork, and visual identity are **proprietary**. They are not covered by this repository's source-code license. See [BRANDING.md](BRANDING.md).
