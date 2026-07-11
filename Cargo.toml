@@ -7,7 +7,7 @@ rust-version = "1.90.0"
 license = "MIT OR Apache-2.0"
 authors = ["Sigma Tactical Group contributors <https://github.com/sigmatactical-org>"]
 repository = "https://github.com/sigmatactical-org/sigma-racer-sidearm"
-homepage = "https://github.com/sigmatactical-org/sigma-racer-sidearm"
+homepage = "https://sigmatactical.org"
 publish = false
 
 [lib]
