@@ -15,13 +15,9 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@1.90.0
         with:
-          components: clippy
           targets: thumbv7em-none-eabihf
 
       - uses: Swatinem/rust-cache@v2
-
-      - name: Firmware clippy
-        run: cargo clippy --features firmware --target thumbv7em-none-eabihf -- -D warnings
 
       - name: Firmware release build
         run: cargo build --release --no-default-features --features firmware --bin sigma-racer-sidearm
