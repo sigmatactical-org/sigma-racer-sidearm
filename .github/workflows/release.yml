@@ -49,7 +49,7 @@ jobs:
           generate_release_notes: true
 
       - name: Publish deb to object store
-        if: ${{ secrets.SIGMA_ARTIFACT_ENDPOINT != '' }}
+        if: vars.SIGMA_PUBLISH_ARTIFACTS == 'true'
         env:
           SIGMA_ARTIFACT_ENDPOINT: ${{ secrets.SIGMA_ARTIFACT_ENDPOINT }}
           SIGMA_ARTIFACT_ACCESS_KEY: ${{ secrets.SIGMA_ARTIFACT_ACCESS_KEY }}
