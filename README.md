@@ -1,5 +1,7 @@
 # sigma-racer-sidearm
 
+[![CI](https://github.com/sigmatactical-org/sigma-racer-sidearm/actions/workflows/ci.yml/badge.svg)](https://github.com/sigmatactical-org/sigma-racer-sidearm/actions/workflows/ci.yml)
+
 All-Rust **M7 safety-core** firmware for the **Sigma Racer Wingman** instrument
 cluster, running on the i.MX8M Plus **Cortex-M7** real-time core alongside the
 Linux (A53) cockpit.
