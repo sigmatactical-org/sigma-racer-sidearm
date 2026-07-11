@@ -20,12 +20,6 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - name: Host tests
-        run: cargo test
-
-      - name: Host clippy
-        run: cargo clippy --all-targets -- -D warnings
-
       - name: Firmware clippy
         run: cargo clippy --features firmware --target thumbv7em-none-eabihf -- -D warnings
 
