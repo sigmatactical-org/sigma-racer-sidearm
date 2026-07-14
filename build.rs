@@ -19,7 +19,10 @@ fn main() {
         .unwrap();
 
     println!("cargo:rustc-link-search={}", out.display());
-    println!("cargo:rustc-link-arg=-T{}/link-rsc.x", manifest_dir.display());
+    println!(
+        "cargo:rustc-link-arg=-T{}/link-rsc.x",
+        manifest_dir.display()
+    );
     println!("cargo:rerun-if-changed=memory-ddr.x");
     println!("cargo:rerun-if-changed=memory-itcm.x");
     println!("cargo:rerun-if-changed=build.rs");

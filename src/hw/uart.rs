@@ -74,14 +74,7 @@ impl Uart4 {
 }
 
 fn pinmux_uart4() {
-    mux_pad(
-        0x238,
-        0x498,
-        0x600,
-        0,
-        0x8,
-        PAD_CONF_UART | (1 << 16),
-    );
+    mux_pad(0x238, 0x498, 0x600, 0, 0x8, PAD_CONF_UART | (1 << 16));
     mux_pad(0x23C, 0x49C, 0, 0, 0, PAD_CONF_UART);
 }
 

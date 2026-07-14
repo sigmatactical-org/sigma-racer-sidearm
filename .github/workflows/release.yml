@@ -24,7 +24,7 @@ jobs:
           sparse-checkout: |
             meta-sigma-racer-wingman/recipes-sigma-racer-wingman/sigma-racer-sidearm
 
-      - uses: dtolnay/rust-toolchain@1.90.0
+      - uses: dtolnay/rust-toolchain@1.97.0
         with:
           targets: thumbv7em-none-eabihf
 

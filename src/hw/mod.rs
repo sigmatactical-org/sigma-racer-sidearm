@@ -11,7 +11,7 @@ mod uart;
 
 pub use clock::{CAN_PE_CLK_HZ, CORE_CLK_HZ};
 pub use flexcan::{FlexCan1, RxFrame};
-pub use rpmsg::{RpmsgTx, ENDPOINT_NAME};
+pub use rpmsg::{ENDPOINT_NAME, RpmsgTx};
 pub use uart::Uart4;
 
 /// Early platform init: safe MMIO, peripheral clock gates.

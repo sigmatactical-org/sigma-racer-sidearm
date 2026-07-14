@@ -5,8 +5,8 @@
 //! one-way M7 → vehicle snapshot stream.
 
 use super::mu;
-use super::rsc_table::{self, VIRTIO_CONFIG_STATUS_DRIVER_OK};
 use super::reg;
+use super::rsc_table::{self, VIRTIO_CONFIG_STATUS_DRIVER_OK};
 
 /// RPMsg header prefix on every datagram.
 const RPMSG_HDR_LEN: usize = 16;

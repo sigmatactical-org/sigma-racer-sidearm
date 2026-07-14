@@ -2,8 +2,10 @@
 
 use dbc_rs::{Dbc, Error};
 
-use crate::message::{CHASSIS_ELECTRICAL, ENGINE_STATUS, THROTTLE_GEAR, TRIP_ODOMETER, WHEEL_SPEED};
 use crate::M7Signals;
+use crate::message::{
+    CHASSIS_ELECTRICAL, ENGINE_STATUS, THROTTLE_GEAR, TRIP_ODOMETER, WHEEL_SPEED,
+};
 
 /// Encode the full dictionary into its five CAN frames `(id, 8-byte payload)`.
 ///

@@ -3,7 +3,7 @@
 //! Publishes [`M7Signals`] snapshots on the `sigma-m7-signals` virtio endpoint
 //! for `sigma-racer-vehicle` to consume.
 
-use sigma_racer_sidearm::{encode_wire, hw::RpmsgTx, M7Signals};
+use sigma_racer_sidearm::{M7Signals, encode_wire, hw::RpmsgTx};
 
 /// RPMsg endpoint publishing state to the Linux cluster.
 pub struct RpmsgLink {
@@ -15,10 +15,7 @@ impl RpmsgLink {
     pub fn new() -> Self {
         let mut tx = RpmsgTx::new();
         tx.init();
-        Self {
-            tx,
-            buf: [0; 64],
-        }
+        Self { tx, buf: [0; 64] }
     }
 
     /// Publish the latest vehicle state to Linux.

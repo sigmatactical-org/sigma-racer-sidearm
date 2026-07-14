@@ -2,7 +2,9 @@
 
 use dbc_rs::Dbc;
 
-use crate::message::{CHASSIS_ELECTRICAL, ENGINE_STATUS, THROTTLE_GEAR, TRIP_ODOMETER, WHEEL_SPEED};
+use crate::message::{
+    CHASSIS_ELECTRICAL, ENGINE_STATUS, THROTTLE_GEAR, TRIP_ODOMETER, WHEEL_SPEED,
+};
 use crate::{M7Signals, PerformanceMode};
 
 /// Decode one CAN frame into `out`, updating only the fields carried by this

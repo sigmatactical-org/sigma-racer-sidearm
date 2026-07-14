@@ -14,12 +14,16 @@ pub struct SafetyBus {
 
 impl SafetyBus {
     pub fn new() -> Self {
-        Self { can: FlexCan1::new() }
+        Self {
+            can: FlexCan1::new(),
+        }
     }
 
     /// Non-blocking receive: returns the next queued frame, if any.
     pub fn poll(&mut self) -> Option<Frame> {
-        self.can.poll().map(|rx| Frame::new(rx.id, &rx.data[..rx.len]))
+        self.can
+            .poll()
+            .map(|rx| Frame::new(rx.id, &rx.data[..rx.len]))
     }
 
     /// Queue a frame for transmission on the safety bus.

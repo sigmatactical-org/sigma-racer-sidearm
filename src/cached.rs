@@ -7,7 +7,7 @@ use std::sync::OnceLock;
 
 use dbc_rs::{Dbc, Error};
 
-use crate::{decode_into, encode_frames, parse, M7Signals};
+use crate::{M7Signals, decode_into, encode_frames, parse};
 
 static PARSED: OnceLock<Dbc> = OnceLock::new();
 

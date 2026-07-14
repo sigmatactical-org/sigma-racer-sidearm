@@ -35,7 +35,7 @@ pub mod message;
 pub mod performance_mode;
 pub mod signals;
 
-pub use database::{parse, M7_DBC};
+pub use database::{M7_DBC, parse};
 pub use decode::decode_into;
 pub use encode::encode_frames;
 pub use message::{
@@ -45,7 +45,9 @@ pub use message::{
 pub use performance_mode::PerformanceMode;
 pub use signals::M7Signals;
 pub mod wire;
-pub use wire::{decode as decode_wire, encode as encode_wire, MAGIC as WIRE_MAGIC, VERSION as WIRE_VERSION};
+pub use wire::{
+    MAGIC as WIRE_MAGIC, VERSION as WIRE_VERSION, decode as decode_wire, encode as encode_wire,
+};
 
 #[cfg(feature = "std")]
 mod cached;
