@@ -19,10 +19,14 @@ fn main() {
         .unwrap();
 
     println!("cargo:rustc-link-search={}", out.display());
-    println!(
-        "cargo:rustc-link-arg=-T{}/link-rsc.x",
-        manifest_dir.display()
-    );
+    // Only bare-metal (firmware) links get the RSC linker script; injecting it
+    // into a host x86_64 link corrupts the test binaries.
+    if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("none") {
+        println!(
+            "cargo:rustc-link-arg=-T{}/link-rsc.x",
+            manifest_dir.display()
+        );
+    }
     println!("cargo:rerun-if-changed=memory-ddr.x");
     println!("cargo:rerun-if-changed=memory-itcm.x");
     println!("cargo:rerun-if-changed=build.rs");
