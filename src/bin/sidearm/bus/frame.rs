@@ -9,6 +9,7 @@ pub struct Frame {
 }
 
 impl Frame {
+    /// Frame from raw id + payload (truncated to 8 bytes).
     pub fn new(id: u32, data: &[u8]) -> Self {
         let mut buf = [0u8; 8];
         let len = data.len().min(8);

@@ -16,17 +16,29 @@
 //!    global mask (`RXMGMASK`) should be set (0 = accept-all) so the single RX
 //!    mailbox reliably matches. Both need the confirmed offsets from (1).
 
+mod rx_frame;
+
+pub use rx_frame::RxFrame;
+
 use super::reg::{self, FLEXCAN1_BASE, IOMUXC_BASE};
 
 const PAD_CONF_CAN: u32 = 0x0000_0154;
 
+/// FlexCAN register offsets (see module docs: not yet silicon-validated).
 mod regoff {
+    /// Module configuration.
     pub const MCR: usize = 0x00;
+    /// Control 1 (bit timing).
     pub const CTRL1: usize = 0x04;
+    /// Control 2.
     pub const CTRL2: usize = 0x28;
+    /// Error/status 1.
     pub const ESR1: usize = 0x40;
+    /// Interrupt mask 1.
     pub const IMASK1: usize = 0x44;
+    /// Interrupt flags 1.
     pub const IFLAG1: usize = 0x48;
+    /// Message-buffer RAM base.
     pub const MB_RAM: usize = 0x80;
 }
 
@@ -55,14 +67,6 @@ const CODE_TX_DATA: u32 = 0xC;
 const IFLAG1_RX: u32 = 1 << RX_MB;
 const IFLAG1_TX: u32 = 1 << TX_MB;
 
-/// Classic CAN frame delivered from the RX mailbox.
-#[derive(Clone, Copy, Debug)]
-pub struct RxFrame {
-    pub id: u32,
-    pub data: [u8; 8],
-    pub len: usize,
-}
-
 /// Blocking FLEXCAN1 controller.
 pub struct FlexCan1 {
     rx_queue: [Option<RxFrame>; 8],
@@ -73,6 +77,7 @@ pub struct FlexCan1 {
 }
 
 impl FlexCan1 {
+    /// Pinmux, reset, and start the controller at 1 Mbit/s.
     pub fn new() -> Self {
         pinmux_can1();
         init_controller();

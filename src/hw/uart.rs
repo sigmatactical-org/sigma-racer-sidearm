@@ -16,15 +16,23 @@ const BAUD_115200: u32 = 115_200;
 
 /// LPUART register offsets.
 mod lpuart {
+    /// Baud rate.
     pub const BAUD: usize = 0x10;
+    /// Status.
     pub const STAT: usize = 0x14;
+    /// Control.
     pub const CTRL: usize = 0x18;
+    /// Data.
     pub const DATA: usize = 0x1C;
 
+    /// TX data register empty.
     pub const STAT_TDRE: u32 = 1 << 23;
+    /// Transmission complete.
     pub const STAT_TC: u32 = 1 << 22;
 
+    /// Transmitter enable.
     pub const CTRL_TE: u32 = 1 << 19;
+    /// Receiver enable.
     pub const CTRL_RE: u32 = 1 << 18;
     /// 8-bit, no parity, one stop bit (M=0, PE=0 — the reset default).
     pub const CTRL_M_8N1: u32 = 0;

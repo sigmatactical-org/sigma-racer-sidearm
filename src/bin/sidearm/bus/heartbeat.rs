@@ -17,6 +17,7 @@ pub struct Heartbeat {
 }
 
 impl Heartbeat {
+    /// Heartbeat state starting at sequence 0.
     pub fn new() -> Self {
         Self {
             sequence: 0,

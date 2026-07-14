@@ -15,21 +15,8 @@ pub const ENDPOINT_NAME: &str = "sigma-m7-signals";
 /// Address Linux assigns after NS bind (typical first dynamic endpoint).
 const ENDPOINT_ADDR: u32 = 0x400;
 
-/// virtio ring descriptor.
-#[repr(C)]
-struct VringDesc {
-    addr: u64,
-    len: u32,
-    flags: u16,
-    next: u16,
-}
-
-/// Used ring element.
-#[repr(C)]
-struct VringUsedElem {
-    id: u32,
-    len: u32,
-}
+// Vring descriptors and used-ring elements live in DDR and are managed
+// entirely by the Linux host; the M7 side never touches them.
 
 /// Shared buffer pool carved from the vdevbuffer DDR region.
 const POOL_BASE: u32 = 0x5540_0000;
@@ -44,6 +31,7 @@ pub struct RpmsgTx {
 }
 
 impl RpmsgTx {
+    /// Idle transport; [`RpmsgTx::init`] completes bring-up lazily.
     pub fn new() -> Self {
         Self {
             ready: false,
@@ -89,6 +77,7 @@ impl RpmsgTx {
         true
     }
 
+    /// Count of datagrams sent (wraps).
     pub fn sequence(&self) -> u16 {
         self.seq
     }
@@ -133,10 +122,3 @@ fn write_u16(base: u32, off: usize, v: u16) {
 fn write_u32(base: u32, off: usize, v: u32) {
     reg::write(base as usize + off, v);
 }
-
-// Silence unused struct warnings — descriptors are host-managed in DDR.
-#[allow(dead_code)]
-const _: () = {
-    let _ = core::mem::size_of::<VringDesc>();
-    let _ = core::mem::size_of::<VringUsedElem>();
-};

@@ -2,9 +2,22 @@
 //!
 //! Layout follows Zephyr `nxp_resource_table.c` for imx8mp DDR firmware.
 
+mod imx_vendor;
+mod resource_hdr;
+mod sync_table;
+mod table;
+mod vdev;
+mod vring;
+
 use core::cell::UnsafeCell;
 use core::mem::size_of;
 use core::ptr::addr_of;
+use imx_vendor::FwRscImxVendor;
+use resource_hdr::ResourceHdr;
+use sync_table::SyncTable;
+use table::NxpResourceTable;
+use vdev::FwRscVdev;
+use vring::FwRscVring;
 
 const RSC_VENDOR_START: u32 = 128;
 const RSC_VDEV: u32 = 3;
@@ -13,65 +26,6 @@ const ADDR_ANY: u32 = 0xFFFF_FFFF;
 
 const OFF_IMX: u32 = (size_of::<ResourceHdr>() + size_of::<[u32; 2]>()) as u32;
 const OFF_VDEV: u32 = OFF_IMX + size_of::<FwRscImxVendor>() as u32;
-
-#[repr(C, packed)]
-struct ResourceHdr {
-    ver: u32,
-    num: u32,
-    reserved: [u32; 2],
-}
-
-#[repr(C, packed)]
-struct FwRscImxVendor {
-    typ: u32,
-    len: u32,
-    magic_num: u32,
-    version: u32,
-    features: u32,
-}
-
-#[repr(C, packed)]
-struct FwRscVdev {
-    typ: u32,
-    id: u32,
-    notifyid: u32,
-    dfeatures: u32,
-    gfeatures: u32,
-    config_len: u32,
-    // Interior-mutable: the firmware writes DRIVER_OK here and Linux DMA-reads
-    // it, so this byte must not be treated as an immutable `static` (writing
-    // through a `&static` cast to `*mut` is UB). `UnsafeCell<u8>` is layout-
-    // identical to `u8`, so the on-wire resource-table layout is unchanged.
-    status: UnsafeCell<u8>,
-    num_of_vrings: u8,
-    reserved: [u8; 2],
-}
-
-#[repr(C, packed)]
-struct FwRscVring {
-    da: u32,
-    align: u32,
-    num: u32,
-    notifyid: u32,
-    reserved: u32,
-}
-
-#[repr(C, packed)]
-struct NxpResourceTable {
-    hdr: ResourceHdr,
-    offset: [u32; 2],
-    imx_vs: FwRscImxVendor,
-    vdev: FwRscVdev,
-    vring0: FwRscVring,
-    vring1: FwRscVring,
-}
-
-/// Newtype so the table (now holding an `UnsafeCell`) can live in a `static`.
-/// The memory is shared with Linux and accessed only through volatile/unaligned
-/// raw ops, so asserting `Sync` is sound.
-struct SyncTable(NxpResourceTable);
-// SAFETY: access is via raw volatile/unaligned pointers; no `&mut` aliasing.
-unsafe impl Sync for SyncTable {}
 
 /// Linux parses this blob from the `.resource_table` ELF section.
 #[unsafe(link_section = ".resource_table")]
@@ -117,6 +71,9 @@ static RESOURCE_TABLE: SyncTable = SyncTable(NxpResourceTable {
     },
 });
 
+/// VirtIO config status: driver OK.
+pub const VIRTIO_CONFIG_STATUS_DRIVER_OK: u8 = 0x04;
+
 /// Mutable pointer to the virtio status byte inside the resource table.
 ///
 /// Sound because `status` is an `UnsafeCell`, so writing through this pointer is
@@ -137,6 +94,3 @@ pub fn vring0_da() -> u32 {
 pub fn vring1_da() -> u32 {
     unsafe { addr_of!(RESOURCE_TABLE.0.vring1.da).read_unaligned() }
 }
-
-/// VirtIO config status: driver OK.
-pub const VIRTIO_CONFIG_STATUS_DRIVER_OK: u8 = 0x04;

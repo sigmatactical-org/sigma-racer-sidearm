@@ -13,6 +13,7 @@ pub struct SafetyBus {
 }
 
 impl SafetyBus {
+    /// Bring up FLEXCAN1 and the decode state.
     pub fn new() -> Self {
         Self {
             can: FlexCan1::new(),

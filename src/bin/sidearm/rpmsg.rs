@@ -12,6 +12,7 @@ pub struct RpmsgLink {
 }
 
 impl RpmsgLink {
+    /// Idle link; virtio bring-up completes lazily on first send.
     pub fn new() -> Self {
         let mut tx = RpmsgTx::new();
         tx.init();
