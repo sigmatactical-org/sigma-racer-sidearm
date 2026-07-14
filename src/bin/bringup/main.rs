@@ -16,10 +16,14 @@
 
 #![no_std]
 #![no_main]
+#![deny(unsafe_code)]
 
 use panic_halt as _;
 use sigma_racer_sidearm::hw::Uart4;
 
+// cortex-m-rt requires `pre_init` to be an unsafe fn; hw::init is the
+// board bring-up documented in `hw`.
+#[allow(unsafe_code)]
 #[cortex_m_rt::pre_init]
 unsafe fn pre_init() {
     sigma_racer_sidearm::hw::init();
