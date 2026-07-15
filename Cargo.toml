@@ -48,9 +48,9 @@ firmware = [
 ]
 
 [dependencies]
-# Pinned to the 0.8 line so a single dbc-rs version stays in the tree and the
+# Pinned to the 0.9 line so a single dbc-rs version stays in the tree and the
 # parsed `Dbc` remains type-compatible with mdf4-rs's `CanDbcLogger`.
-dbc-rs = { version = "0.8.0", default-features = false }
+dbc-rs = { version = "0.9.0", default-features = false }
 
 cortex-m = { version = "0.7.7", features = ["inline-asm", "critical-section-single-core", "cm7"], optional = true }
 cortex-m-rt = { version = "0.7.5", optional = true }

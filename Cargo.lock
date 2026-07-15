@@ -134,9 +134,9 @@ dependencies = [
 
 [[package]]
 name = "dbc-rs"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1bad30621374ab6b3c94a20bdee7e91856231f1f6583b59e52c44c50c72f3d1"
+checksum = "84b641a4e20fb86f061f12ec5845e35df2e1a16fcc4437f66decf2388ec8a853"
 dependencies = [
  "heapless",
  "sigma-bounded",
