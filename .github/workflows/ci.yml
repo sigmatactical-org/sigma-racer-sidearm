@@ -21,6 +21,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           add-rust-environment-hash-key: false
+          key: ${{ hashFiles('Cargo.lock', 'Cargo.toml', 'rust-toolchain.toml', '.cargo/config.toml') }}
 
       - name: Firmware release build
         run: cargo build --release --no-default-features --features firmware --bin sigma-racer-sidearm
