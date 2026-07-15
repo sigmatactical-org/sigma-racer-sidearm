@@ -29,6 +29,8 @@ jobs:
           targets: thumbv7em-none-eabihf
 
       - uses: Swatinem/rust-cache@v2
+        with:
+          add-rust-environment-hash-key: false
 
       - name: Derive deb version from tag
         id: ver
