@@ -15,16 +15,16 @@ jobs:
   deb:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           repository: sigmatactical-org/sigma-racer-wingman
           path: sigma-racer-wingman
           sparse-checkout: |
             meta-sigma-racer-wingman/recipes-sigma-racer-wingman/sigma-racer-sidearm
 
-      - uses: dtolnay/rust-toolchain@1.97.0
+      - uses: dtolnay/rust-toolchain@1.97.1
         with:
           targets: thumbv7em-none-eabihf
 
